@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ZeroDev.Dialog"
         mc:Ignorable="d"
-        Title="New Project" Height="150" Width="300">
+        Title="New Project" Height="150" Width="300" ResizeMode="NoResize">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
@@ -23,7 +23,7 @@
         <TextBlock Grid.Row="1" Grid.Column="0" Text="Project Name: " VerticalAlignment="Center" HorizontalAlignment="Left"/>
         <TextBlock Grid.Row="2" Grid.Column="0" Text="Project Location: " VerticalAlignment="Center" HorizontalAlignment="Left"/>
         <TextBox Name="NameBox" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="4" Text="New Zeroth Project" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
-        <TextBox Name="LocBox" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Text="" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+        <TextBox Name="LocBox" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Text="" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextAlignment="Left"/>
 
         <Button Name="BrowseButton" Grid.Row="3" Grid.Column="3" Content="Browse" VerticalAlignment="Top" HorizontalAlignment="Right" Width="65"/>
         <Button Name="CreateButton" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Content="Create" VerticalAlignment="Center" HorizontalAlignment="Center" Width="65"/>

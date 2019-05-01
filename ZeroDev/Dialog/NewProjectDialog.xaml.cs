@@ -29,6 +29,8 @@ namespace ZeroDev.Dialog
             set
             {
                 this.LocBox.Text = value;
+                this.LocBox.Focus();
+                this.LocBox.Select(value.Length, 0);
             }
         }
 
@@ -58,14 +60,13 @@ namespace ZeroDev.Dialog
                 dialog.AddExtension = true;
                 dialog.DefaultExt = ".zproj";
                 dialog.Filter = "Zeroth Project Files (*.zproj)|*.zproj";
-                dialog.ShowDialog();
-                dialog.CheckFileExists = true;
-                dialog.CheckPathExists = true;
                 dialog.OverwritePrompt = true;
+                dialog.ShowDialog();
                 if (System.IO.Path.GetExtension(dialog.FileName).Equals(".zproj"))
                 {
                     File = dialog.FileName;
-                } else
+                }
+                else
                 {
                     MessageBox.Show("Invalid file path", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }

@@ -7,10 +7,20 @@
         mc:Ignorable="d"
         Title="ZeroDev" Height="450" Width="800">
 
+    <Window.CommandBindings>
+        <CommandBinding Command="New" Executed="NewProjectEvent" />
+    </Window.CommandBindings>
+    
     <Window.Resources>
         <Style x:Key="bTrans" TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="LightGray"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        <Style x:Key="tTrans" TargetType="{x:Type TextBox}">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
         </Style>
     </Window.Resources>
     
@@ -19,42 +29,51 @@
             <TabItem Header="Editor">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="200"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="0.05*"/>
+                        <ColumnDefinition Width="6.5*"/>
+                        <ColumnDefinition Width="0.05*"/>
+                        <ColumnDefinition Width="3*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="20"/>
                         <RowDefinition/>
                         <RowDefinition Height="20"/>
                     </Grid.RowDefinitions>
-                    <TextBox Name="EditorBox" Grid.RowSpan="999" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" AcceptsReturn="True" TextWrapping="Wrap"/>
-                    <TextBlock Name="ProjectNameBlock" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <Grid Grid.Row="2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="50"/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" Name="NewFileBtn" Content="New File" FontSize="11"/>
-                        <Button Grid.Column="1" Name="NewProjectBtn" Content="New Project" FontSize="11" />
-                        <Button Grid.Column="2" Name="OpenProjectBtn" Content="Open Project" FontSize="11"/>
-                    </Grid>
-                    <ListView Grid.Row="1">
-                        <StackPanel Orientation="Vertical">
-                            <!--
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="🗑" Grid.Column="0" Style="{StaticResource bTrans}"/>
-                                <Button Content="↓" FontSize="18" Grid.Column="0" Style="{StaticResource bTrans}"/>
-                                <Button Content="↑" FontSize="18" Grid.Column="0" Style="{StaticResource bTrans}"/>
-                                <TextBlock Grid.Column="1" Text="stuff" VerticalAlignment="Center"/>
-                            </StackPanel>
-                            -->
-                        </StackPanel>
-                    </ListView>
+                    <GridSplitter Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" Grid.RowSpan="2"/>
+                    <GridSplitter Grid.Column="3" Grid.Row="1" HorizontalAlignment="Stretch" Grid.RowSpan="2"/>
+                    <TextBox Text="{Binding FileContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, FallbackValue=''}" Name="EditorBox" Style="{StaticResource tTrans}" Grid.RowSpan="999" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" AcceptsReturn="True" AcceptsTab="True" TextWrapping="NoWrap"/>
+                    <Menu Grid.ColumnSpan="999">
+                        <MenuItem Header="_File">
+                            <MenuItem Name="NewFileButton" Header="_New"/>
+                            <MenuItem Name="ImportFileButton" Header="_Import"/>
+                        </MenuItem>
+                        <MenuItem Header="_Project">
+                            <MenuItem Header="_New" Command="New"/>
+                            <MenuItem Header="_Open" Command="Open"/>
+                        </MenuItem>
+                        <MenuItem Header="Debug">
+                            <MenuItem Header="Dump Local Dictionary"/>
+                        </MenuItem>
+                    </Menu>
+                    <ScrollViewer Grid.Row="1" Grid.RowSpan="2" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl Name="FileView">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Content="X" FontSize="14" Style="{StaticResource bTrans}" Click="RemoveFileButtonEvent"/>
+                                        <Button Content="↑" FontSize="18" Style="{StaticResource bTrans}" Click="ShiftDownFileButtonEvent"/>
+                                        <Button Content="↓" FontSize="18" Style="{StaticResource bTrans}" Click="ShiftUpFileButtonEvent"/>
+                                        <Button Content=" Edit " FontSize="14" Style="{StaticResource bTrans}" Click="EditFileButtonEvent"/>
+                                        <TextBlock Grid.Column="1" FontSize="14" Text="{Binding FileName}" VerticalAlignment="Center" Margin="3,0,0,0"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                 </Grid>
             </TabItem>
-            <TabItem Header="Machine">
+            <TabItem Header="Virtual Machine">
                 <Grid/>
             </TabItem>
         </TabControl>
