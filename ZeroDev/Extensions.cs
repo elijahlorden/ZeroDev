@@ -41,6 +41,7 @@ namespace ZeroDev
         public static XmlNode SetAttrib(this XmlNode node, String propName, String val)
         {
             XmlAttribute attr = node.Attributes[propName] ?? node.OwnerDocument.CreateAttribute(propName).AppendTo(node);
+            attr.Value = val;
             return node;
         }
 

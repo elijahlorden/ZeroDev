@@ -62,8 +62,9 @@
     <Compile Include="Dialog\NewProjectDialog.xaml.cs">
       <DependentUpon>NewProjectDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DocumentEnumerator.cs" />
-    <Compile Include="Util.cs" />
+    <Compile Include="Util\DocumentEnumerator.cs" />
+    <Compile Include="Util\FileListDataTemplateSelector.cs" />
+    <Compile Include="Util\Util.cs" />
     <Page Include="Dialog\NewFileDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

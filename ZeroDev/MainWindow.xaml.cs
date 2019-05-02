@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -24,24 +25,29 @@ namespace ZeroDev
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        private LoadedProject currentProject;
-
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private LoadedProject currentProject;
         private LoadedFile _currentFile;
 
-        private LoadedFile CurrentFile
+        public LoadedFile CurrentFile
         {
             get
             {
                 return _currentFile;
             }
-            set
+            private set
             {
+                if (_currentFile != null) _currentFile.Editing = false;
                 _currentFile = value;
+                value.Editing = true;
                 EditorBox.DataContext = value;
                 NotifyPropertyChanged("CurrentFile");
                 EditorBox.IsEnabled = value != null;
+                // This forces the DataTemplateSelector to refresh, I could not find another way to force a refresh.
+                DataTemplateSelector dts = FileView.ItemTemplateSelector;
+                FileView.ItemTemplateSelector = null;
+                FileView.ItemTemplateSelector = dts;
             }
         }
 
@@ -59,14 +65,40 @@ namespace ZeroDev
                 NewFileDialog dialog = new NewFileDialog();
                 dialog.FileName = "NewZerothFile.zth";
                 dialog.ShowDialog();
-                if (currentProject.fileExists(dialog.FileName))
+                if (!dialog.cancelled)
                 {
-                    MessageBox.Show($"{dialog.FileName} already exists in the current project", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    if (currentProject.fileExists(dialog.FileName))
+                    {
+                        MessageBox.Show($"{dialog.FileName} already exists in the current project", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    LoadedFile newFile = new LoadedFile { FilePath = currentProject.ProjectPath + System.IO.Path.DirectorySeparatorChar + dialog.FileName, FileContent = "" };
+                    currentProject.addFile(newFile);
+                    CurrentFile = newFile;
+                    currentProject.save();
+                }
+            };
+
+            ImportFileButton.Click += (object sender, RoutedEventArgs e) =>
+            {
+                if (currentProject == null)
+                {
+                    MessageBox.Show("There is currently no project open", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                LoadedFile newFile = new LoadedFile { FilePath = currentProject.ProjectPath + System.IO.Path.DirectorySeparatorChar + dialog.FileName, FileContent = ""};
-                currentProject.addFile(newFile);
-                CurrentFile = newFile;
+                OpenFileDialog dialog = new OpenFileDialog();
+                dialog.FileName = Directory.GetCurrentDirectory();
+                dialog.Filter = "Zeroth Source Files (*.zth)|*.zth";
+                if (dialog.ShowDialog() == true)
+                {
+                    LoadedFile imported = currentProject.import(dialog.FileName);
+                    if (imported != null) CurrentFile = imported;
+                }
+            };
+
+            this.Closing += (object sender, CancelEventArgs e) =>
+            {
+                if (currentProject != null) currentProject.save();
             };
 
         }
@@ -78,6 +110,12 @@ namespace ZeroDev
 
         private void switchProject(LoadedProject project)
         {
+            if (currentProject != null) currentProject.save();
+            if (!project.loaded)
+            {
+                MessageBox.Show("Error loading project:\n" + project.loadError, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
             currentProject = project;
             Title = "ZeroDev - " + project.ProjectName;
             FileView.ItemsSource = currentProject.files;
@@ -94,12 +132,25 @@ namespace ZeroDev
             switchProject(newProject);
         }
 
+        private void OpenProjectEvent(object sender, ExecutedRoutedEventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.FileName = Directory.GetCurrentDirectory();
+            dialog.Filter = "Zeroth Project Files (*.zproj)|*.zproj";
+            if (dialog.ShowDialog() == true && File.Exists(dialog.FileName))
+            {
+                LoadedProject newProject = LoadedProject.loadProject(dialog.FileName);
+                switchProject(newProject);
+            }
+        }
+
         private void RemoveFileButtonEvent(object sender, RoutedEventArgs e)
         {
             if (currentProject == null) return;
             LoadedFile file = (LoadedFile)((Button)sender).DataContext;
             MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Are you sure you want to remove " + file.FileName + "?", "Are you sure?", System.Windows.MessageBoxButton.YesNo);
             if (messageBoxResult == MessageBoxResult.Yes) currentProject.removeFile(file);
+            currentProject.save();
             if (file == CurrentFile) CurrentFile = null;
         }
 
@@ -139,6 +190,7 @@ namespace ZeroDev
         private void EditFileButtonEvent(object sender, RoutedEventArgs e)
         {
             CurrentFile = (LoadedFile)((Button)sender).DataContext;
+            currentProject.save();
         }
 
 

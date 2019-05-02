@@ -8,9 +8,24 @@ using System.Threading.Tasks;
 
 namespace ZeroDev.Containers
 {
-    class LoadedFile: INotifyPropertyChanged
+    public class LoadedFile: INotifyPropertyChanged
     {
         public String FilePath { get; set; }
+        public Boolean Modified { get; set; }
+        private Boolean _editing;
+        public Boolean Editing
+        {
+            get
+            {
+                return _editing;
+            }
+            set
+            {
+                _editing = value;
+                NotifyPropertyChanged("Editing");
+            }
+        }
+        public int Index { get; set; }
 
         public String FileName
         {
@@ -34,6 +49,7 @@ namespace ZeroDev.Containers
             {
                 _fileContent = value;
                 NotifyPropertyChanged("FileContent");
+                Modified = true;
             }
         }
 
