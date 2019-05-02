@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -18,6 +19,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ZeroDev.Containers;
 using ZeroDev.Dialog;
+using ZeroDev.Util;
 using ZeroDev.Zeroth;
 
 namespace ZeroDev
@@ -25,6 +27,8 @@ namespace ZeroDev
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public ObservableCollection<LogEntry> LogEntries { get; set; }
 
         private LoadedProject currentProject;
         private LoadedFile _currentFile;
@@ -55,11 +59,30 @@ namespace ZeroDev
             }
         }
 
+        private Logger _logger;
+
+        public Logger Logger
+        {
+            get
+            {
+                _logger = _logger ?? new Logger(log);
+                return _logger;
+            }
+        }
+
+        public void log(String message, uint color)
+        {
+            LogEntries.Add(new LogEntry { Text = message, TextColor = color });
+        }
+
         public MainWindow()
         {
             InitializeComponent();
 
-            ZerothCompiler compiler = new ZerothCompiler();
+            LogEntries = new ObservableCollection<LogEntry>();
+            LogPanel.ItemsSource = LogEntries;
+
+            ZerothCompiler compiler = new ZerothCompiler(Logger);
             Debug.WriteLine(compiler.removeComments("Hello world / comment\nNext line ( also a comment ) is here"));
 
             NewFileButton.Click += (object sender, RoutedEventArgs e) =>
@@ -83,6 +106,7 @@ namespace ZeroDev
                     currentProject.addFile(newFile);
                     CurrentFile = newFile;
                     currentProject.save();
+                    Logger.log($"Imported '{newFile.FileName}'");
                 }
             };
 
@@ -100,7 +124,29 @@ namespace ZeroDev
                 {
                     LoadedFile imported = currentProject.import(dialog.FileName);
                     if (imported != null) CurrentFile = imported;
+                    Logger.log($"Imported '{imported.FileName}'");
                 }
+            };
+
+            BuildLocalButton.Click += (object sender, RoutedEventArgs e) =>
+            {
+                if (currentProject == null || CurrentFile == null)
+                {
+                    MessageBox.Show("There is currently no file open", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                compiler.BuildFile(CurrentFile);
+
+
+
+            };
+
+            BuildProjectButton.Click += (object sender, RoutedEventArgs e) =>
+            {
+
+
+
+
             };
 
             this.Closing += (object sender, CancelEventArgs e) =>
@@ -108,11 +154,7 @@ namespace ZeroDev
                 if (currentProject != null) currentProject.save();
             };
 
-        }
-
-        public void log(String message)
-        {
-
+            Logger.log("Logging started");
         }
 
         private void NotifyPropertyChanged(String propertyName)
@@ -140,6 +182,7 @@ namespace ZeroDev
             Title = "ZeroDev - " + project.ProjectName;
             FileView.ItemsSource = currentProject.files;
             CurrentFile = currentProject.files.FirstOrDefault();
+            Logger.log($"[Editor] Switched to project '{currentProject.ProjectName}'");
         }
 
         private void NewProjectEvent(object sender, ExecutedRoutedEventArgs e)
@@ -148,6 +191,7 @@ namespace ZeroDev
             popup.File = Directory.GetCurrentDirectory() + System.IO.Path.DirectorySeparatorChar + "NewZerothProject.zproj";
             popup.ShowDialog();
             if (popup.cancelled || popup.invalid) return;
+            Logger.log($"[Editor] Creating new project '{popup.ProjectName}' at '{popup.File}'");
             LoadedProject newProject = LoadedProject.newProject(popup.File, popup.ProjectName);
             switchProject(newProject);
         }
@@ -159,6 +203,7 @@ namespace ZeroDev
             dialog.Filter = "Zeroth Project Files (*.zproj)|*.zproj";
             if (dialog.ShowDialog() == true && File.Exists(dialog.FileName))
             {
+                Logger.log($"[Editor] Loading project from '{dialog.FileName}'");
                 LoadedProject newProject = LoadedProject.loadProject(dialog.FileName);
                 switchProject(newProject);
             }
@@ -171,6 +216,7 @@ namespace ZeroDev
             MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Are you sure you want to remove " + file.FileName + "?", "Are you sure?", System.Windows.MessageBoxButton.YesNo);
             if (messageBoxResult == MessageBoxResult.Yes) currentProject.removeFile(file);
             currentProject.save();
+            Logger.log("[Editor] Removed " + file.FileName);
             if (file == CurrentFile) CurrentFile = null;
         }
 

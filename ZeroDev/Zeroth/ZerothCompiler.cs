@@ -15,9 +15,16 @@ namespace ZeroDev.Zeroth
     {
         private static Dictionary<String, IZerothCompilable> compilationWords;
 
+        public Logger logger { private get; set; }
+
         public ZerothCompiler()
         {
             compilationWords = compilationWords ?? getCompilationWords();
+        }
+
+        public ZerothCompiler(Logger logger) : base()
+        {
+            this.logger = logger;
         }
 
         /*
@@ -50,6 +57,13 @@ namespace ZeroDev.Zeroth
          */
         public ZerothDictionary BuildFile(LoadedFile file)
         {
+            logger?.log($"[Compiler] Building '{file.FileName}'");
+            ZerothCompilerState state = new ZerothCompilerState
+            {
+
+            };
+
+
 
             return null;
         }

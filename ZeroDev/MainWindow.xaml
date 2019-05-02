@@ -19,11 +19,13 @@
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
         </Style>
+        
         <Style x:Key="tTrans" TargetType="{x:Type TextBox}">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
         </Style>
+        
         <DataTemplate x:Key="FileListItem">
             <StackPanel Orientation="Horizontal">
                 <Button Content="X" FontSize="14" Style="{StaticResource bTrans}" Click="RemoveFileButtonEvent"/>
@@ -33,6 +35,7 @@
                 <TextBlock Grid.Column="1" FontSize="14" Text="{Binding FileName}" VerticalAlignment="Center" Margin="3,0,0,0"/>
             </StackPanel>
         </DataTemplate>
+        
         <DataTemplate x:Key="FileListItemSelected">
             <StackPanel Orientation="Horizontal">
                 <Button Content="X" FontSize="14" Style="{StaticResource bTrans}" Click="RemoveFileButtonEvent"/>
@@ -79,8 +82,8 @@
                         <MenuItem Header="_Project">
                             <MenuItem Header="_New" Command="New"/>
                             <MenuItem Header="_Open" Command="Open"/>
-                            <MenuItem Header="_Build Project"/>
-                            <MenuItem Header="_Build Local"/>
+                            <MenuItem Name="BuildProjectButton" Header="_Build Project"/>
+                            <MenuItem Name="BuildLocalButton" Header="_Build Local"/>
                         </MenuItem>
                         <MenuItem Header="Debug">
                             <MenuItem Header="Dump Local Dictionary"/>
@@ -89,12 +92,26 @@
                     <ScrollViewer Grid.Row="2" Grid.RowSpan="999" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                         <ItemsControl Name="FileView" ItemTemplateSelector="{StaticResource fileDataTemplateSelector}"/>
                     </ScrollViewer>
-                    <ScrollViewer Grid.Row="4" Grid.Column="2" VerticalScrollBarVisibility="Auto">
-                        <VirtualizingStackPanel>
-                            
-                        </VirtualizingStackPanel>
-                    </ScrollViewer>
-                    <Grid Grid.Column="4" Grid.Row="1" Grid.RowSpan="999">
+                    <ItemsControl ItemsSource="{Binding LogEntries}" Name="LogPanel" Grid.Row="4" Grid.Column="2">
+                        <ItemsControl.Template>
+                            <ControlTemplate>
+                                <ScrollViewer CanContentScroll="True">
+                                    <ItemsPresenter/>
+                                </ScrollViewer>
+                            </ControlTemplate>
+                        </ItemsControl.Template>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Text}" Foreground="{Binding TextColor}" TextWrapping="Wrap" Margin="0,0,0,2.5"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VirtualizingStackPanel IsItemsHost="True"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                        <Grid Grid.Column="4" Grid.Row="1" Grid.RowSpan="999">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="18"/>
                             <RowDefinition Height="1*"/>
