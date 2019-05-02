@@ -65,6 +65,9 @@
     <Compile Include="Util\DocumentEnumerator.cs" />
     <Compile Include="Util\FileListDataTemplateSelector.cs" />
     <Compile Include="Util\Util.cs" />
+    <Compile Include="Zeroth\ZerothCompiler.cs" />
+    <Compile Include="Zeroth\ZerothDictionary.cs" />
+    <Compile Include="Zeroth\ZerothSubroutine.cs" />
     <Page Include="Dialog\NewFileDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -114,5 +117,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="VerilogSource.v" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
