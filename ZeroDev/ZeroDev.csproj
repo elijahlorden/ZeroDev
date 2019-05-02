@@ -65,9 +65,14 @@
     <Compile Include="Util\DocumentEnumerator.cs" />
     <Compile Include="Util\FileListDataTemplateSelector.cs" />
     <Compile Include="Util\Util.cs" />
+    <Compile Include="Zeroth\CompileWords\NativeWords.cs" />
+    <Compile Include="Zeroth\IZerothCompilable.cs" />
     <Compile Include="Zeroth\ZerothCompiler.cs" />
+    <Compile Include="Zeroth\ZerothCompilerException.cs" />
     <Compile Include="Zeroth\ZerothDictionary.cs" />
-    <Compile Include="Zeroth\ZerothSubroutine.cs" />
+    <Compile Include="Zeroth\ZerothInstructions.cs" />
+    <Compile Include="Zeroth\ZerothReloc.cs" />
+    <Compile Include="Zeroth\ZerothWord.cs" />
     <Page Include="Dialog\NewFileDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -84,7 +89,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Extensions.cs" />
+    <Compile Include="Util\Extensions.cs" />
     <Compile Include="Containers\LoadedProject.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

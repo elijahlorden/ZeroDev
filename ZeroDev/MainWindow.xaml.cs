@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -17,12 +18,10 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ZeroDev.Containers;
 using ZeroDev.Dialog;
+using ZeroDev.Zeroth;
 
 namespace ZeroDev
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
@@ -40,7 +39,12 @@ namespace ZeroDev
             {
                 if (_currentFile != null) _currentFile.Editing = false;
                 _currentFile = value;
-                value.Editing = true;
+                if (value != null)
+                {
+                    value.Editing = true;
+                    FileHeader.Text = value.FileName;
+                }
+                else FileHeader.Text = "";
                 EditorBox.DataContext = value;
                 NotifyPropertyChanged("CurrentFile");
                 EditorBox.IsEnabled = value != null;
@@ -54,6 +58,9 @@ namespace ZeroDev
         public MainWindow()
         {
             InitializeComponent();
+
+            ZerothCompiler compiler = new ZerothCompiler();
+            Debug.WriteLine(compiler.removeComments("Hello world / comment\nNext line ( also a comment ) is here"));
 
             NewFileButton.Click += (object sender, RoutedEventArgs e) =>
             {
@@ -103,6 +110,11 @@ namespace ZeroDev
 
         }
 
+        public void log(String message)
+        {
+
+        }
+
         private void NotifyPropertyChanged(String propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -111,12 +123,20 @@ namespace ZeroDev
         private void switchProject(LoadedProject project)
         {
             if (currentProject != null) currentProject.save();
+            CurrentFile = null;
+            if (project == null)
+            {
+                currentProject = null;
+                ProjectHeader.Text = "Project";
+                return;
+            }
             if (!project.loaded)
             {
                 MessageBox.Show("Error loading project:\n" + project.loadError, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             currentProject = project;
+            ProjectHeader.Text = $"Project '{currentProject.ProjectName}'";
             Title = "ZeroDev - " + project.ProjectName;
             FileView.ItemsSource = currentProject.files;
             CurrentFile = currentProject.files.FirstOrDefault();

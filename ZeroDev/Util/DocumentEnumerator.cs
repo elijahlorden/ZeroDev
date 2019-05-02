@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ZeroDev.Util
 {
-    class DocumentEnumerator
+    public class DocumentEnumerator
     {
         public String Current { get; private set; }
         public int Line { get; private set; }
@@ -21,6 +21,15 @@ namespace ZeroDev.Util
             Line = 0;
             linePtr = -1;
             currentLine = lines[0].Trim().Split(null);
+        }
+
+        private DocumentEnumerator(String current, int line, String[] n_lines, String[] n_currentLine, int n_linePtr)
+        {
+            Current = current;
+            Line = line;
+            lines = n_lines;
+            currentLine = n_currentLine;
+            linePtr = n_linePtr;
         }
 
         public Boolean MoveNext()
@@ -40,6 +49,8 @@ namespace ZeroDev.Util
             }
             return true;
         }
+
+        public DocumentEnumerator Duplicate() => new DocumentEnumerator(Current, Line, lines, currentLine, linePtr);
 
     }
 
